@@ -1,0 +1,51 @@
+-- looking for duplicates under film table.
+
+SELECT film_id, 
+  Title,
+  release_year, 
+  language_id, 
+  rental_duration, 
+  COUNT (*)
+FROM film 
+GROUP BY film_id,
+  Title, 
+  release_year, 
+  language_id, 
+  rental_duration
+HAVING COUNT(*) >1;
+
+--looking for non-uniform under film table 
+
+SELECT DISTINCT rating,
+  release_year 
+FROM film
+GROUP BY rating,
+  release_year
+
+--
+SELECT language_id FROM film
+GROUP BY language_id
+
+--
+SELECT rating 
+FROM film 
+GROUP BY rating
+
+--looking for duplicates under customer table
+
+SELECT customer_id, 
+  store_id,
+  first_name, 
+  last_name, 
+  email, 
+  address_id, 
+  COUNT (*)
+
+FROM customer 
+GROUP BY customer_id,
+  store_id,  
+  first_name, 
+  last_name, 
+  email, 
+  address_id
+HAVING COUNT(*) >1
