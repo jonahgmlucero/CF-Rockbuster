@@ -15,4 +15,4 @@
 <li>Tableau</li>
 </ul>
 <h3 id="executing-the-code">Executing the code</h3>
-<p>The code is available as a Word document. Ready for copy and paste in pgAdmin4.</p>
+<p>The code is available in this repository.</p>
