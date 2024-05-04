@@ -1,0 +1,16 @@
+-- SQL query with a common table expression (CTE):
+
+WITH total_paid_by_customers 
+(customer_id, first_name, last_name, total_amount_paid) AS
+(SELECT A.customer_id,
+		   C.first_name,
+		   C.last_name,
+		   SUM (A.amount) AS total_amount_paid
+	FROM payment A
+	JOIN rental B on A.customer_id=B.customer_id
+	JOIN customer C on B.customer_id=C.customer_id
+	GROUP BY A.customer_id,
+		   C.first_name,
+		   C.last_name)
+SELECT *
+FROM total_paid_by_customers
