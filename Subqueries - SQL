@@ -1,0 +1,82 @@
+-- Find the average amount paid by the top 5 customers
+SELECT AVG (total_amount_paid) as avg_amount_paid_by_top5clients
+FROM
+	(SELECT C.customer_id,
+		   C.first_name,
+		   C.last_name,
+		   E.city,
+		   SUM (A.amount) AS total_amount_paid
+	FROM payment A
+	JOIN customer C ON A.customer_id=C.customer_id
+	JOIN address D ON C.address_id=D.address_id
+	JOIN city E ON D.city_id=E.city_id
+	WHERE E.city IN
+		(SELECT E.city
+			FROM customer C
+			JOIN address D ON C.address_id = D.address_id
+			JOIN city E ON D.city_id = E.city_id
+			JOIN country F ON E.country_ID = F.country_ID
+			WHERE country IN 
+			  (SELECT F.country
+					FROM customer C
+					JOIN address D ON C.address_id = D.address_id
+					JOIN city E ON D.city_id = E.city_id
+					JOIN country F ON E.country_ID = F.country_ID
+					GROUP BY F.country
+					ORDER BY COUNT(C.customer_id) DESC
+					LIMIT 10)
+			 GROUP BY E.city
+			 ORDER BY COUNT(C.customer_id) DESC
+			 LIMIT 10)
+	GROUP BY C.customer_id,
+			 E.city
+	ORDER BY SUM (A.amount) DESC
+	LIMIT 5)
+
+
+
+-- Find out how many of the top 5 customers you identified in step 1 are based within each country.
+SELECT 
+	   F.country,
+	   COUNT (DISTINCT C.customer_id) AS all_customer_count,
+	   COUNT (DISTINCT top5_total_paid) AS top_customer_count 
+FROM customer C
+JOIN address D on C.address_id=D.address_id
+JOIN city E on D.city_id=E.city_id
+JOIN country F on E.country_id=F.country_id
+	LEFT JOIN
+	(SELECT C.customer_id,
+		   C.first_name,
+		   C.last_name,
+		   E.city,
+		   SUM (A.amount) AS total_amount_paid
+	FROM payment A
+	JOIN customer C ON A.customer_id=C.customer_id
+	JOIN address D ON C.address_id=D.address_id
+	JOIN city E ON D.city_id=E.city_id
+	WHERE E.city IN
+		(SELECT E.city
+			FROM customer C
+			JOIN address D ON C.address_id = D.address_id
+			JOIN city E ON D.city_id = E.city_id
+			JOIN country F ON E.country_ID = F.country_ID
+			WHERE country IN 
+			  (SELECT F.country
+					FROM customer C
+					JOIN address D ON C.address_id = D.address_id
+					JOIN city E ON D.city_id = E.city_id
+					JOIN country F ON E.country_ID = F.country_ID
+					GROUP BY F.country
+					ORDER BY COUNT(C.customer_id) DESC
+					LIMIT 10)
+			 GROUP BY E.city
+			 ORDER BY COUNT(C.customer_id) DESC
+			 LIMIT 10)
+	GROUP BY C.customer_id,
+			 E.city
+	ORDER BY SUM (A.amount) DESC
+	LIMIT 5) AS top5_total_paid
+	ON C.customer_id=top5_total_paid.customer_id
+GROUP BY F.country
+ORDER BY all_customer_count DESC
+LIMIT 10
